@@ -14,11 +14,11 @@ import pandas as pd
 import os
 
 FILES = {
-    "berita_google": "data_berita_mentah.csv",
-    "youtube": "data_youtube_mentah.csv",
+    "berita_google": "data_berita_mentah_1bulan.csv",
+    "youtube": "data_youtube_mentah_1bulan.csv",
 }
 
-OUTPUT = "dataset_gabungan.csv"
+OUTPUT = "dataset_gabungan_1bulan.csv"
 
 
 def muat_dan_rapikan(nama_sumber, path_file):

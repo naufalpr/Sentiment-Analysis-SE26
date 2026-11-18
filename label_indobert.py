@@ -27,8 +27,8 @@ import pandas as pd
 import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
-INPUT_CSV = "dataset_preprocessed.csv"
-OUTPUT_CSV = "dataset_labeled_indobert.csv"
+INPUT_CSV = "dataset_preprocessed_1bulan.csv"
+OUTPUT_CSV = "dataset_labeled_indobert_1bulan.csv"
 
 MODEL_NAME = "w11wo/indonesian-roberta-base-sentiment-classifier"
 
@@ -101,21 +101,21 @@ def main():
     print("Melabeli sentimen ...")
     hasil_label = beri_label_batch(pipe, daftar_teks)
 
-    df["label_indobert"] = [h[0] for h in hasil_label]
+    df["sentimen"] = [h[0] for h in hasil_label]
     df["skor_confidence"] = [h[1] for h in hasil_label]
 
     df.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
     print(f"\nSelesai. Tersimpan ke {OUTPUT_CSV}")
 
     print("\nDistribusi label:")
-    print(df["label_indobert"].value_counts())
+    print(df["sentimen"].value_counts())
 
     print("\nContoh hasil (10 baris acak):")
-    kolom_tampil = [kolom_teks, "label_indobert", "skor_confidence"]
+    kolom_tampil = [kolom_teks, "sentimen", "skor_confidence"]
     print(df[kolom_tampil].sample(min(10, len(df))).to_string(index=False))
 
     print("\nRata-rata confidence score per label:")
-    print(df.groupby("label_indobert")["skor_confidence"].mean().round(3))
+    print(df.groupby("sentimen")["skor_confidence"].mean().round(3))
 
 
 if __name__ == "__main__":

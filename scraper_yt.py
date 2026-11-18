@@ -30,7 +30,7 @@ from datetime import datetime, timedelta, timezone
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from keywordss import KEYWORDS
+from keywords import KEYWORDS
 
 # ---------------------------------------------------------------------------
 # Konfigurasi

@@ -35,7 +35,7 @@ st.set_page_config(
     layout="wide",
 )
 
-DATA_PATH = "dataset_labeled_indobert.csv"
+DATA_PATH = "dataset_labeled_indobert_1bulan.csv"
 DATA_INFLASI_PATH = "data_inflasi_malang.csv"  # opsional, lihat bagian korelasi
 
 
