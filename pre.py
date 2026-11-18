@@ -29,8 +29,8 @@ import pandas as pd
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 
-INPUT_CSV = "dataset_gabungan.csv"
-OUTPUT_CSV = "dataset_preprocessed.csv"
+INPUT_CSV = "dataset_gabungan_1bulan.csv"
+OUTPUT_CSV = "dataset_preprocessed_1bulan.csv"
 
 # ---------------------------------------------------------------------------
 # Kamus normalisasi slang -> baku (contoh awal, silakan ditambah sendiri
