@@ -8,7 +8,7 @@
 
 KEYWORDS = {
     "Sensus Ekonomi": [
-        "Sensus Ekonomi",
+        "Sensus Ekonomi 2026",
     ]
 }
 
