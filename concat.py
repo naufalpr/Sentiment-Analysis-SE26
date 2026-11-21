@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Menggabungkan hasil dari semua sumber (Google News, Bing News, situs lokal,
-YouTube) menjadi satu dataset final dengan skema kolom yang seragam.
+YouTube, Instagram) menjadi satu dataset final dengan skema kolom yang seragam.
 
 Jalankan setelah scraper_berita.py, scraper_berita_tambahan.py, dan
 scraper_youtube.py sudah menghasilkan file CSV masing-masing.
@@ -14,11 +14,12 @@ import pandas as pd
 import os
 
 FILES = {
-    "berita_google": "data_berita_mentah_1bulan.csv",
-    "youtube": "data_youtube_mentah_1bulan.csv",
+    "x": "data_x_mentah.csv",
+    "youtube": "data_youtube_mentah.csv",
+    "instagram": "ig/final_ig_comments.csv",
 }
 
-OUTPUT = "dataset_gabungan_1bulan.csv"
+OUTPUT = "dataset_gabungan.csv"
 
 
 def muat_dan_rapikan(nama_sumber, path_file):
@@ -29,23 +30,21 @@ def muat_dan_rapikan(nama_sumber, path_file):
     df = pd.read_csv(path_file)
 
     # Skema kolom seragam: isu, kata_kunci, teks, tanggal, platform, link_atau_id
-    if nama_sumber in ("berita_google", "berita_tambahan"):
+    if nama_sumber in ("x"):
         df_rapi = pd.DataFrame({
-            "isu": df.get("isu", ""),
-            "kata_kunci": df.get("kata_kunci", ""),
-            "teks": df.get("judul", "").fillna("") + ". " + df.get("ringkasan", "").fillna(""),
-            "tanggal": df.get("tanggal", ""),
-            "platform": "berita",
             "referensi": df.get("link", ""),
+            "teks": df.get("teks", ""),
         })
     elif nama_sumber == "youtube":
         df_rapi = pd.DataFrame({
-            "isu": df.get("isu", ""),
-            "kata_kunci": df.get("kata_kunci", ""),
+            "referensi": "youtube.com/" + df.get("video_id", ""),
             "teks": df.get("teks", ""),
-            "tanggal": df.get("tanggal", ""),
-            "platform": "youtube",
-            "referensi": df.get("video_id", ""),
+            
+        })
+    elif nama_sumber == "instagram":
+        df_rapi = pd.DataFrame({
+            "referensi": df.get("url", ""),
+            "teks": df.get("teks", ""),
         })
     else:
         df_rapi = pd.DataFrame()
@@ -78,10 +77,8 @@ def main():
 
     gabungan.to_csv(OUTPUT, index=False, encoding="utf-8-sig")
     print(f"\nDataset gabungan final: {len(gabungan)} baris -> {OUTPUT}")
-    print("\nRingkasan per isu:")
-    print(gabungan["isu"].value_counts())
     print("\nRingkasan per platform:")
-    print(gabungan["platform"].value_counts())
+    print(gabungan["sumber_asal"].value_counts())
 
 
 if __name__ == "__main__":
