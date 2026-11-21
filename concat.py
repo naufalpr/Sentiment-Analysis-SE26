@@ -34,17 +34,19 @@ def muat_dan_rapikan(nama_sumber, path_file):
         df_rapi = pd.DataFrame({
             "referensi": df.get("link", ""),
             "teks": df.get("teks", ""),
+            "timestamp": df.get("tanggal", ""),
         })
     elif nama_sumber == "youtube":
         df_rapi = pd.DataFrame({
             "referensi": "youtube.com/" + df.get("video_id", ""),
             "teks": df.get("teks", ""),
-            
+            "timestamp": df.get("tanggal", ""),
         })
     elif nama_sumber == "instagram":
         df_rapi = pd.DataFrame({
             "referensi": df.get("url", ""),
             "teks": df.get("teks", ""),
+            "timestamp": df.get("timestamp", ""),
         })
     else:
         df_rapi = pd.DataFrame()

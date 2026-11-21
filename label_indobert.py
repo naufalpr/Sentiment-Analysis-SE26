@@ -27,8 +27,8 @@ import pandas as pd
 import torch
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
-INPUT_CSV = "dataset_preprocessed_1bulan.csv"
-OUTPUT_CSV = "dataset_labeled_indobert_1bulan.csv"
+INPUT_CSV = "dataset_preprocessed.csv"
+OUTPUT_CSV = "dataset_labeled_indobert.csv"
 
 MODEL_NAME = "w11wo/indonesian-roberta-base-sentiment-classifier"
 
