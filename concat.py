@@ -15,7 +15,7 @@ import os
 
 FILES = {
     "x": "data_x_mentah.csv",
-    "youtube": "data_youtube_mentah.csv",
+    "youtube": "data_youtube_mentah_banyak.csv",
     "instagram": "ig/final_ig_comments.csv",
 }
 
