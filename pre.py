@@ -107,9 +107,11 @@ def case_folding(teks):
 
 
 def hapus_url_mention_hashtag(teks):
-    teks = re.sub(r"http\S+|www\.\S+", " ", teks)          # URL
-    teks = re.sub(r"@\w+", " ", teks)                       # mention
-    teks = re.sub(r"#\w+", " ", teks)                       # hashtag
+    teks = re.sub(r"^\s*@\S*\s*", "", teks)                 # mention di awal
+    teks = re.sub(r"http\S+|www\.\S+", " ", teks)           # URL
+    teks = re.sub(r"@", " ", teks)
+    # teks = re.sub(r"@\w+", " ", teks)                     # mention
+    # teks = re.sub(r"#\w+", " ", teks)                     # hashtag
     teks = re.sub(r"\S+@\S+", " ", teks)                    # email
     return teks
 

@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 trash/
 profil_x_browser/
+apitoken.txt

@@ -38,12 +38,12 @@ from keywords import KEYWORDS
 
 API_KEY = os.environ.get("YOUTUBE_API_KEY", "AIzaSyCAgVEjybvBzxokYyR5zSdWYwV9JrENfxw")
 
-MAKS_VIDEO_PER_KATA_KUNCI = 25      # jumlah video yang dicari per kata kunci
-MAKS_KOMENTAR_PER_VIDEO = 20      # jumlah komentar top-level yang diambil per video
-OUTPUT_CSV = "data_youtube_mentah.csv"
+MAKS_VIDEO_PER_KATA_KUNCI = 120      # jumlah video yang dicari per kata kunci
+MAKS_KOMENTAR_PER_VIDEO = 10      # jumlah komentar top-level yang diambil per video
+OUTPUT_CSV = "data_youtube_mentah_banyak.csv"
 
 # Rentang waktu pengambilan data (ganti sesuai kebutuhan, mis. 7 atau 90)
-HARI_TERAKHIR = 201
+HARI_TERAKHIR = 204
 BATAS_AWAL = datetime.now(timezone.utc) - timedelta(days=HARI_TERAKHIR)
 
 # Diisi di bagian main, setelah API key divalidasi
@@ -56,32 +56,52 @@ youtube = None
 
 def cari_video(keyword, maks_hasil=MAKS_VIDEO_PER_KATA_KUNCI):
     """Mengembalikan list video (id, judul, channel, tanggal) yang diunggah
-    dalam HARI_TERAKHIR hari ke belakang."""
+    dalam HARI_TERAKHIR hari ke belakang menggunakan pagination."""
     hasil = []
+    next_page_token = None
+
     try:
-        request = youtube.search().list(
-            q=keyword,
-            part="snippet",
-            type="video",
-            maxResults=maks_hasil,
-            relevanceLanguage="id",
-            regionCode="ID",
-            order="relevance",
-            publishedAfter=BATAS_AWAL.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        )
-        response = request.execute()
-        for item in response.get("items", []):
-            hasil.append({
-                "video_id": item["id"]["videoId"],
-                "judul_video": item["snippet"]["title"],
-                "channel": item["snippet"]["channelTitle"],
-                "tanggal_video": item["snippet"]["publishedAt"],
-            })
+        while len(hasil) < maks_hasil:
+            sisa = maks_hasil - len(hasil)
+            request = youtube.search().list(
+                q=keyword,
+                part="snippet",
+                type="video",
+                maxResults=min(50, sisa),  # Batas maksimum API per halaman adalah 50
+                pageToken=next_page_token,
+                relevanceLanguage="id",
+                regionCode="ID",
+                order="relevance",
+                publishedAfter=BATAS_AWAL.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            )
+            response = request.execute()
+
+            items = response.get("items", [])
+            if not items:
+                break
+
+            for item in items:
+                video_id = item.get("id", {}).get("videoId")
+                if not video_id:
+                    continue
+                hasil.append({
+                    "video_id": video_id,
+                    "judul_video": item["snippet"]["title"],
+                    "channel": item["snippet"]["channelTitle"],
+                    "tanggal_video": item["snippet"]["publishedAt"],
+                })
+
+            next_page_token = response.get("nextPageToken")
+            if not next_page_token:
+                break
+
+            time.sleep(0.5)  # Jeda singkat antar halaman
+
     except HttpError as e:
         print(f"[GAGAL] Cari video untuk '{keyword}': {e}")
 
+    print(f"  -> Ditemukan {len(hasil)} video (dari target maks {maks_hasil}).")
     return hasil
-
 
 # ---------------------------------------------------------------------------
 # 2. Ambil komentar dari satu video
@@ -143,6 +163,7 @@ def ambil_komentar(video_id, maks_komentar=MAKS_KOMENTAR_PER_VIDEO):
 
 def kumpulkan_semua_youtube(keywords_dict):
     semua_data = []
+    video_sudah_diproses = set()  # Mencegah scrape ulang video yang sama
 
     for isu, daftar_kata_kunci in keywords_dict.items():
         for kw in daftar_kata_kunci:
@@ -151,14 +172,21 @@ def kumpulkan_semua_youtube(keywords_dict):
             time.sleep(1)
 
             for video in daftar_video:
+                vid_id = video["video_id"]
+
+                # Lewati jika video ini sudah diambil komentarnya dari kata kunci lain
+                if vid_id in video_sudah_diproses:
+                    continue
+                video_sudah_diproses.add(vid_id)
+
                 print(f"  Mengambil komentar: {video['judul_video'][:60]}...")
-                komentar_list = ambil_komentar(video["video_id"])
+                komentar_list = ambil_komentar(vid_id)
 
                 for k in komentar_list:
                     semua_data.append({
                         "isu": isu,
                         "kata_kunci": kw,
-                        "video_id": video["video_id"],
+                        "video_id": vid_id,
                         "judul_video": video["judul_video"],
                         "channel": video["channel"],
                         **k,
@@ -167,7 +195,6 @@ def kumpulkan_semua_youtube(keywords_dict):
                 time.sleep(1)
 
     return semua_data
-
 
 # ---------------------------------------------------------------------------
 # 4. Simpan ke CSV
